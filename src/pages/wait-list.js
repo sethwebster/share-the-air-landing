@@ -1,16 +1,13 @@
 import React from "react"
-import { graphql, Link } from "gatsby"
+import { graphql } from "gatsby"
 import Img from "gatsby-image"
+
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 
 import "@fortawesome/fontawesome-free/css/all.min.css"
 
 import configs from "../../site-config"
-
-const PsychLink = which => {
-  return <a href="">Test</a>
-}
 
 const IndexPage = ({ data }) => (
   <Layout>
@@ -143,28 +140,20 @@ const IndexPage = ({ data }) => (
             </div>
             <div className="downloadButtonsContainer">
               {configs.playstore_link && (
-                <Link
-                  className="playStoreLink"
-                  to="/wait-list"
-                  style={{ border: "0", backgroundColor: "rgba(0,0,0,0)" }}
-                >
+                <a className="playStoreLink" href={configs.playstore_link}>
                   <Img
                     fixed={data.playStore.childImageSharp.fixed}
                     className="playStore"
                   />
-                </Link>
+                </a>
               )}
               {configs.appstore_link && (
-                <Link
-                  className="appStoreLink"
-                  to="/wait-list"
-                  style={{ border: "0", backgroundColor: "rgba(0,0,0,0)" }}
-                >
+                <a className="appStoreLink" href={configs.appstore_link}>
                   <Img
                     fixed={data.appStore.childImageSharp.fixed}
                     className="appStore"
                   />
-                </Link>
+                </a>
               )}
             </div>
           </div>

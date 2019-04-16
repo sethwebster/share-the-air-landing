@@ -1,9 +1,10 @@
 {
-  "name": "automatic-gatsbyjs-app-landing-page",
-  "description": "Automatically generate iOS app landing page using GatsbyJS",
+  "name": "share-the-air-landing",
+  "description": "Share the Air Landing Page",
   "version": "1.0.0",
-  "author": "Imed Adel <aadelimed@gmail.com>",
+  "author": "Seth Webster <sethwebster@gmail.com>",
   "dependencies": {
+    "axios": "^0.18.0",
     "babel-plugin-styled-components": "^1.10.0",
     "gatsby": "^2.1.27",
     "gatsby-image": "^2.0.31",

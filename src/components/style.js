@@ -65,7 +65,7 @@ export default createGlobalStyle`
     position: unset !important;
     height: 0 !important;
     display: block !important;
-    
+
   }
   .headerImage > div{
     padding-bottom: 0 !important;
@@ -188,13 +188,13 @@ export default createGlobalStyle`
     grid-area: i;
     display: flex;
     flex-wrap: wrap;
-    padding-top: 140px;
+    padding-top: 100px;
     align-content: flex-start;
   }
 
   @media only screen and (max-width: 992px) {
     .appInfo {
-      padding-top: 50px;
+      padding-top: 20px;
       justify-content: center;
     }
   }

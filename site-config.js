@@ -1,4 +1,13 @@
+const api = {
+  mailingUrl:
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:8888/api/mailing-list"
+      : "https://share-the-air-api.herokuapp.com/api/mailing-list",
+}
+
 module.exports = {
+  // network
+  mailing_list_api_url: api.mailingUrl,
   // App Info
   appstore_link: "https://imedadel.me", // Enter App Store URL.
   playstore_link: "https://imedadel.me", // Enter Google Play Store URL.
@@ -8,7 +17,7 @@ module.exports = {
   app_url: "https://agalp.imedadel.me", // Domain of your website without path_prefix.
   path_prefix: "/", // Prefixes all links. For cases when deployed to example.github.io/automatic-gatsbyjs-app-landing-page/.
   app_name: "Share the Air",
-  app_price: "Free",
+  app_price: "$9.99/month",
   app_description: "Take to the Skies, Make new Friends, Share the Costs",
   app_keywords: [
     "general aviation",
@@ -19,7 +28,7 @@ module.exports = {
   ],
 
   // Personal Info
-  your_name: "Seth Websterl",
+  your_name: "Seth Webster",
   your_link: "https://sethwebster.com",
   your_city: "New York",
   email_address: "hello@sharetheair.club",

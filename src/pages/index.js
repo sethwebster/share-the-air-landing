@@ -8,13 +8,9 @@ import "@fortawesome/fontawesome-free/css/all.min.css"
 
 import configs from "../../site-config"
 
-const PsychLink = which => {
-  return <a href="">Test</a>
-}
-
 const IndexPage = ({ data }) => (
   <Layout>
-    <SEO title="Home" keywords={configs.app_keywords} />
+    <SEO title="Share the Air - Welcomes you" keywords={configs.app_keywords} />
 
     <div
       className="imageWrapper"

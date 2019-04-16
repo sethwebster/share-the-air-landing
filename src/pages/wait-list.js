@@ -61,6 +61,10 @@ const ErrorMessage = styled.p`
   color: #ff0000;
 `
 
+const StyledSelect = styled.select`
+  height: 30px;
+`
+
 const FormField = ({
   name,
   labelText,
@@ -164,6 +168,19 @@ const TheForm = ({ onSubmit, disabled, error }) => {
             required
             disabled={disabled}
           />
+        </div>
+        <div>
+          <StyledFormLabel htmlFor={"DEVICE"}>Type of Device</StyledFormLabel>
+
+          <StyledSelect
+            name="DEVICE"
+            onChange={handleChange}
+            value={data.DEVICE}
+          >
+            <option value="iPhone">iPhone</option>
+            <option value="Android">Android</option>
+            <option value="Other">Other</option>
+          </StyledSelect>
         </div>
       </div>
       {error && <ErrorMessage>{error}</ErrorMessage>}

@@ -532,4 +532,14 @@ export default createGlobalStyle`
   .hidden {
     display: none;
   }
+
+  .privacy-policy {
+    margin-left:20px;
+  }
+  .privacy-policy p {
+    margin-top:20px;
+  }
+  .privacy-policy h2, .privacy-policy h3, .privacy-policy h4 {
+    margin-top:30px;
+  }
 `

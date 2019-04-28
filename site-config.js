@@ -1,12 +1,17 @@
 const api = {
+  apiUrl:
+    process.env.NODE_ENV === "development"
+      ? "https://sharetheair.pagekite.me/api"
+      : "https://share-the-air-api.herokuapp.com/api",
   mailingUrl:
     process.env.NODE_ENV === "development"
-      ? "http://localhost:8888/api/mailing-list"
+      ? "https://sharetheair.pagekite.me/api/mailing-list"
       : "https://share-the-air-api.herokuapp.com/api/mailing-list",
 }
 
 module.exports = {
   // network
+  api_url: api.apiUrl,
   mailing_list_api_url: api.mailingUrl,
   // App Info
   appstore_link: "https://imedadel.me", // Enter App Store URL.

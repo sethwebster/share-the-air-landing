@@ -10,6 +10,12 @@ import logo from "../images/icon.png"
 import configs from "../../site-config"
 import Axios from "axios"
 import moment from "moment"
+import {
+  StripeProvider,
+  Elements,
+  injectStripe,
+  CardElement,
+} from "react-stripe-elements"
 
 function getQueryStringValue(key) {
   return decodeURIComponent(
@@ -39,35 +45,39 @@ const buttonStyles = {
   backgroundColor: "rgb(255, 178, 56)",
   borderRadius: "6px",
   letterSpacing: "1.5px",
+  width: "100%",
 }
 
-function CustomerSubscriptions({ token, redirectToCheckout, setUserEmail }) {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [subscription, setSubscription] = useState(null)
-  console.log(isLoaded)
+const loadSubscriptions = async token => {
+  return (await Axios.get(`${configs.api_url}/subscriptions`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })).data
+  // setSubscription(result.data)
+  // setUserEmail(result.data.email)
+  // setIsLoaded(true)
+}
 
-  const loadSubscriptions = async (token, setSubscription, setIsLoaded) => {
-    const result = await Axios.get(
-      `https://sharetheair.pagekite.me/api/subscriptions?tok=${token}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    )
-    setSubscription(result.data)
-    setUserEmail(result.data.email)
-    setIsLoaded(true)
-  }
+const processPayment = async (paymentMethod, token) => {
+  return (await Axios.post(
+    `${configs.api_url}/subscriptions/payment`,
+    paymentMethod,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  )).data
+  // setSubscription(result.data)
+  // setUserEmail(result.data.email)
+  // setIsLoaded(true)
+}
 
-  useEffect(() => {
-    loadSubscriptions(token, setSubscription, setIsLoaded)
-  }, [false])
-
+function CustomerSubscriptions({ subscription }) {
   return (
     <div
       style={{
         textAlign: "center",
-        fontFamily: "Sans-Serif",
-        fontSize: "1.2em",
+        fontFamily: "sans-serif",
+        fontSize: "1.0em",
+        opacity: "0.95",
       }}
     >
       <div
@@ -83,7 +93,7 @@ function CustomerSubscriptions({ token, redirectToCheckout, setUserEmail }) {
       >
         <img src={logo} style={{ height: "100%", width: "100%" }} />
       </div>
-      {isLoaded && subscription.status === "active" && (
+      {subscription.status === "active" && (
         <>
           <div>
             <h3 style={{ marginTop: 10 }}>Start Date</h3>
@@ -91,167 +101,218 @@ function CustomerSubscriptions({ token, redirectToCheckout, setUserEmail }) {
             <h3 style={{ marginTop: 10 }}>Next Bill Date</h3>
             <>{moment.unix(subscription.endDate).format("ll")}</>
           </div>
-          <button
-            style={buttonStyles}
-            onClick={event => redirectToCheckout(event)}
-          >
-            Cancel
-          </button>
         </>
       )}
-      {isLoaded && subscription.status !== "active" && (
-        <div>
+      {subscription.status !== "active" && (
+        <div style={{ margin: "20px" }}>
           <p>Take to the skies for just $9.99/mo</p>
-          <button
-            style={buttonStyles}
-            onClick={event => redirectToCheckout(event)}
-          >
-            CONTINUE
-          </button>
         </div>
       )}
     </div>
   )
 }
 
-const Checkout = class extends React.Component {
-  state = {
-    email: null,
-  }
-  // Initialise Stripe.js with your publishable key.
-  // You can find your key in the Dashboard:
-  // https://dashboard.stripe.com/account/apikeys
-  componentDidMount() {
-    this.stripe = window.Stripe("pk_test_GbzzIDUn5IiwCbX7WFDyeqKl00OsIGjTpi", {
-      // betas: ["checkout_beta_4"],
-    })
-  }
+// const Checkout = class extends React.Component {
+//   state = {
+//     email: null,
+//   }
+//   // Initialise Stripe.js with your publishable key.
+//   // You can find your key in the Dashboard:
+//   // https://dashboard.stripe.com/account/apikeys
+//   componentDidMount() {
+//     this.stripe = window.Stripe("pk_test_GbzzIDUn5IiwCbX7WFDyeqKl00OsIGjTpi", {
+//       // betas: ["checkout_beta_4"],
+//     })
+//   }
 
-  redirectToCheckout = async event => {
-    const { email } = this.state
-    console.log("email", email)
-    event.preventDefault()
-    const { error } = await this.stripe.redirectToCheckout({
-      items: [{ plan: "plan_Exx6E6byFa1XIx", quantity: 1 }],
-      successUrl: `http://localhost:8000/payment-success/`,
-      cancelUrl: `http://localhost:8000/payment-canceled`,
-      // rememberMe: true,
-      // customerEmail: email,
-      customer: { id: "cus_Exx8MDsV3EJGhW" },
-    })
+//   redirectToCheckout = async event => {
+//     const { email } = this.state
+//     console.log("email", email)
+//     event.preventDefault()
+//     const { error } = await this.stripe.redirectToCheckout({
+//       items: [{ plan: "plan_Exx6E6byFa1XIx", quantity: 1 }],
+//       successUrl: `http://localhost:8000/payment-success/`,
+//       cancelUrl: `http://localhost:8000/payment-canceled`,
+//       // rememberMe: true,
+//       // customerEmail: email,
+//       customer: { id: "cus_Exx8MDsV3EJGhW" },
+//     })
 
-    if (error) {
-      console.warn("Error:", error)
-    }
+//     if (error) {
+//       console.warn("Error:", error)
+//     }
+//   }
+
+//   render() {
+//     return (
+//       <>
+//         <CustomerSubscriptions
+//           token={customerToken()}
+//           redirectToCheckout={this.redirectToCheckout}
+//           setUserEmail={email => this.setState({ email })}
+//         />
+//       </>
+//     )
+//   }
+// }
+
+class CardSection extends React.Component {
+  handleRef = ref => {
+    const { cardElementRefHandler } = this.props
+    if (cardElementRefHandler) cardElementRefHandler(ref)
   }
-
   render() {
     return (
-      <>
-        <CustomerSubscriptions
-          token={customerToken()}
-          redirectToCheckout={this.redirectToCheckout}
-          setUserEmail={email => this.setState({ email })}
+      <label>
+        Card details
+        <hr />
+        <br />
+        <CardElement
+          ref={this.handleRef}
+          style={{ base: { fontSize: "18px" } }}
         />
-      </>
+      </label>
     )
   }
 }
 
-const PrivacyPolicy = ({ data }) => (
-  <Layout>
-    <SEO title="Subscribe to Share the Air" keywords={configs.app_keywords} />
-    <Checkout />
-  </Layout>
-)
-
-export default PrivacyPolicy
-
-export const query = graphql`
-  query {
-    headerIcon: file(relativePath: { eq: "icon.png" }) {
-      childImageSharp {
-        fluid(maxWidth: 50) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
-    appStore: file(relativePath: { eq: "appstore.png" }) {
-      childImageSharp {
-        fixed(width: 220) {
-          ...GatsbyImageSharpFixed
-        }
-      }
-    }
-    playStore: file(relativePath: { eq: "playstore.png" }) {
-      childImageSharp {
-        fixed(height: 75) {
-          ...GatsbyImageSharpFixed
-        }
-      }
-    }
-    iphoneScreen: file(relativePath: { glob: "screenshot/*.png" }) {
-      childImageSharp {
-        fluid(maxWidth: 350) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
-    videoScreen: file(
-      extension: { ne: "txt" }
-      relativePath: { glob: "videos/*" }
-    ) {
-      publicURL
-      extension
-    }
-    appIconLarge: file(relativePath: { eq: "icon.png" }) {
-      childImageSharp {
-        fluid(maxWidth: 120) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
-    headerImage: file(relativePath: { eq: "headerimage.png" }) {
-      childImageSharp {
-        fluid(maxHeight: 714) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
-    iphonePreviewBlack: file(relativePath: { eq: "black.png" }) {
-      childImageSharp {
-        fluid(maxWidth: 400) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
-    iphonePreviewBlue: file(relativePath: { eq: "blue.png" }) {
-      childImageSharp {
-        fluid(maxWidth: 400) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
-    iphonePreviewCoral: file(relativePath: { eq: "coral.png" }) {
-      childImageSharp {
-        fluid(maxWidth: 400) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
-    iphonePreviewWhite: file(relativePath: { eq: "white.png" }) {
-      childImageSharp {
-        fluid(maxWidth: 400) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
-    iphonePreviewYellow: file(relativePath: { eq: "yellow.png" }) {
-      childImageSharp {
-        fluid(maxWidth: 400) {
-          ...GatsbyImageSharpFluid
-        }
-      }
-    }
+class CheckoutForm extends React.Component {
+  state = {
+    inProgress: false,
+    complete: false,
+    error: false,
   }
-`
+  handleSubmit = ev => {
+    const { email } = this.props
+    const { cardElement } = this.state
+    // We don't want to let default form submission happen here, which would refresh the page.
+    ev.preventDefault()
+    // // Within the context of `Elements`, this call to createPaymentMethod knows from which Element to
+    // // create the PaymentMethod, since there's only one in this group.
+    // // See our createPaymentMethod documentation for more:
+    // // https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method
+    this.setState({ inProgress: true })
+    this.props.stripe
+      .createSource({
+        type: "card",
+        owner: {
+          email: email,
+        },
+      })
+      .then(res => {
+        console.log(res)
+      })
+
+    this.props.stripe
+      .createPaymentMethod("card", { billing_details: { email } })
+      .then(async ({ paymentMethod }) => {
+        const result = await processPayment(paymentMethod, customerToken())
+        console.log(result)
+        this.setState({ inProgress: false })
+        if (result.status === "active") {
+          this.setState({ complete: true })
+        } else {
+          this.setState({ error: true })
+        }
+      })
+    // // You can also use handleCardPayment with the Payment Intents API automatic confirmation flow.
+    // // See our handleCardPayment documentation for more:
+    // // https://stripe.com/docs/stripe-js/reference#stripe-handle-card-payment
+
+    // // You can also use createToken to create tokens.
+    // // See our tokens documentation for more:
+    // // https://stripe.com/docs/stripe-js/reference#stripe-create-token
+    // this.props.stripe.createToken({ type: "card", name: "Jenny Rosen" })
+    // // token type can optionally be inferred if there is only one one Element
+    // // with which to create tokens
+    // // this.props.stripe.createToken({name: 'Jenny Rosen'});
+    // // You can also use createSource to create Sources.
+    // // See our Sources documentation for more:
+    // // https://stripe.com/docs/stripe-js/reference#stripe-create-source
+  }
+
+  render() {
+    const { email } = this.props
+    const { inProgress = false, complete, error } = this.state
+    if (complete) {
+      return <div style={styles.complete}>Your subscription is confirmed!</div>
+    }
+    return (
+      <form onSubmit={this.handleSubmit} style={{ width: "100%" }}>
+        {/* <AddressSection /> */}
+        {error && <div style={styles.errors}>Your subscription failed.</div>}
+        <div
+          style={{
+            opacity: inProgress ? "0.5" : "1",
+            fontSize: "0.8em",
+          }}
+        >
+          <CardSection
+            cardElementRefHandler={ref => {
+              this.setState({ cardElement: ref })
+            }}
+          />
+          <button style={buttonStyles} disabled={inProgress}>
+            Confirm order
+          </button>
+        </div>
+      </form>
+    )
+  }
+}
+
+const InjectedCheckoutForm = injectStripe(CheckoutForm)
+
+const ElementsFormWrapper = ({ email }) => {
+  return (
+    <Elements>
+      <InjectedCheckoutForm email={email} />
+    </Elements>
+  )
+}
+
+const PaymentForm = () => {
+  const [subscription, setSubscription] = useState(null)
+
+  useEffect(() => {
+    loadSubscriptions(customerToken()).then(setSubscription)
+  }, [])
+
+  if (!subscription) return <></>
+  console.log("COMP", subscription.status !== "active")
+  return (
+    <Layout>
+      <div style={{ width: "400px", margin: "0 auto 0 auto" }}>
+        <CustomerSubscriptions subscription={subscription} />
+        {subscription.status !== "active" && (
+          <StripeProvider apiKey={"pk_test_GbzzIDUn5IiwCbX7WFDyeqKl00OsIGjTpi"}>
+            <ElementsFormWrapper email={subscription.email} />
+          </StripeProvider>
+        )}
+      </div>
+    </Layout>
+  )
+}
+
+const styles = {
+  errors: {
+    padding: 10,
+    backgroundColor: "rgba(252, 251, 201, 0.8)",
+    border: "1px solid rgb(178, 176, 101)",
+    borderRadius: "5px",
+    margin: "10px 0 10px 0",
+    color: "red",
+    boxShadow: "2px 5px 10px rgba(0,0,0,.1)",
+  },
+  complete: {
+    padding: 10,
+    backgroundColor: "rgba(8, 206, 31, 0.8)",
+    border: "1px solid #159924",
+    borderRadius: "5px",
+    margin: "10px 0 10px 0",
+    color: "white",
+    boxShadow: "2px 5px 10px rgba(0,0,0,.1)",
+  },
+}
+
+export default PaymentForm

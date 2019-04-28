@@ -246,6 +246,7 @@ const ElementsFormWrapper = ({ email }) => {
 }
 
 const PaymentForm = () => {
+  console.log(process.env)
   const [subscription, setSubscription] = useState(null)
   useEffect(() => {
     loadSubscriptions(customerToken()).then(setSubscription)

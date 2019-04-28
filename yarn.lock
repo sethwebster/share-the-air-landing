@@ -4670,6 +4670,11 @@ gatsby-plugin-sitemap@^2.0.10:
     pify "^3.0.0"
     sitemap "^1.12.0"
 
+gatsby-plugin-stripe@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/gatsby-plugin-stripe/-/gatsby-plugin-stripe-1.2.0.tgz#06a0835cb90b72d3f8d02ee961f8ddff291946c7"
+  integrity sha512-4tG1hRxcLeSLP+1OMeuh0KTXi+t8tkvJSxjmt7OJmFAZvgBk85UqwMm7T5uIZ9M02NUKK+UlTjGsBoT/9KUGow==
+
 gatsby-plugin-styled-components@^3.0.7:
   version "3.0.7"
   resolved "https://registry.yarnpkg.com/gatsby-plugin-styled-components/-/gatsby-plugin-styled-components-3.0.7.tgz#c89db04ef646f3b8295455009ddf717896c8c727"

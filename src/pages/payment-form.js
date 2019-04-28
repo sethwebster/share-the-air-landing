@@ -259,7 +259,7 @@ const PaymentForm = () => {
       <div style={{ width: "400px", margin: "0 auto 0 auto" }}>
         <CustomerSubscriptions subscription={subscription} />
         {subscription.status !== "active" && (
-          <StripeProvider apiKey={process.env.STRIPE_PK}>
+          <StripeProvider apiKey={process.env.GATSBY_STRIPE_PK}>
             <ElementsFormWrapper email={subscription.email} />
           </StripeProvider>
         )}

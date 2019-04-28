@@ -30,8 +30,13 @@ function getQueryStringValue(key) {
     )
   )
 }
+
 function customerToken() {
   return getQueryStringValue("token")
+}
+
+function returnTo() {
+  return getQueryStringValue("returnTo")
 }
 
 const buttonStyles = {
@@ -112,50 +117,6 @@ function CustomerSubscriptions({ subscription }) {
   )
 }
 
-// const Checkout = class extends React.Component {
-//   state = {
-//     email: null,
-//   }
-//   // Initialise Stripe.js with your publishable key.
-//   // You can find your key in the Dashboard:
-//   // https://dashboard.stripe.com/account/apikeys
-//   componentDidMount() {
-//     this.stripe = window.Stripe("pk_test_GbzzIDUn5IiwCbX7WFDyeqKl00OsIGjTpi", {
-//       // betas: ["checkout_beta_4"],
-//     })
-//   }
-
-//   redirectToCheckout = async event => {
-//     const { email } = this.state
-//     console.log("email", email)
-//     event.preventDefault()
-//     const { error } = await this.stripe.redirectToCheckout({
-//       items: [{ plan: "plan_Exx6E6byFa1XIx", quantity: 1 }],
-//       successUrl: `http://localhost:8000/payment-success/`,
-//       cancelUrl: `http://localhost:8000/payment-canceled`,
-//       // rememberMe: true,
-//       // customerEmail: email,
-//       customer: { id: "cus_Exx8MDsV3EJGhW" },
-//     })
-
-//     if (error) {
-//       console.warn("Error:", error)
-//     }
-//   }
-
-//   render() {
-//     return (
-//       <>
-//         <CustomerSubscriptions
-//           token={customerToken()}
-//           redirectToCheckout={this.redirectToCheckout}
-//           setUserEmail={email => this.setState({ email })}
-//         />
-//       </>
-//     )
-//   }
-// }
-
 class CardSection extends React.Component {
   handleRef = ref => {
     const { cardElementRefHandler } = this.props
@@ -192,28 +153,36 @@ class CheckoutForm extends React.Component {
     // // See our createPaymentMethod documentation for more:
     // // https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method
     this.setState({ inProgress: true })
-    this.props.stripe
-      .createSource({
-        type: "card",
-        owner: {
-          email: email,
-        },
-      })
-      .then(res => {
-        console.log(res)
-      })
+    // this.props.stripe
+    //   .createSource({
+    //     type: "card",
+    //     owner: {
+    //       email: email,
+    //     },
+    //   })
+    //   .then(res => {
+    //     console.log("SOURCE RR", res)
+    //   })
 
     this.props.stripe
       .createPaymentMethod("card", { billing_details: { email } })
-      .then(async ({ paymentMethod }) => {
-        const result = await processPayment(paymentMethod, customerToken())
-        console.log(result)
-        this.setState({ inProgress: false })
-        if (result.status === "active") {
-          this.setState({ complete: true })
+      .then(async (res, err) => {
+        const { paymentMethod } = res
+        if (paymentMethod && !res.error) {
+          const result = await processPayment(paymentMethod, customerToken())
+          console.log(result)
+          this.setState({ inProgress: false })
+          if (result.status === "active") {
+            this.setState({ complete: true })
+          } else {
+            this.setState({ error: true })
+          }
         } else {
-          this.setState({ error: true })
+          this.setState({ inProgress: false })
         }
+      })
+      .catch(err => {
+        console.log("THE ERROR", err)
       })
     // // You can also use handleCardPayment with the Payment Intents API automatic confirmation flow.
     // // See our handleCardPayment documentation for more:
@@ -235,7 +204,12 @@ class CheckoutForm extends React.Component {
     const { email } = this.props
     const { inProgress = false, complete, error } = this.state
     if (complete) {
-      return <div style={styles.complete}>Your subscription is confirmed!</div>
+      return (
+        <div>
+          <div style={styles.complete}>Your subscription is confirmed!</div>
+          <a href={returnTo()}>Return to Share the Air</a>
+        </div>
+      )
     }
     return (
       <form onSubmit={this.handleSubmit} style={{ width: "100%" }}>
@@ -273,7 +247,6 @@ const ElementsFormWrapper = ({ email }) => {
 
 const PaymentForm = () => {
   const [subscription, setSubscription] = useState(null)
-
   useEffect(() => {
     loadSubscriptions(customerToken()).then(setSubscription)
   }, [])
@@ -285,7 +258,7 @@ const PaymentForm = () => {
       <div style={{ width: "400px", margin: "0 auto 0 auto" }}>
         <CustomerSubscriptions subscription={subscription} />
         {subscription.status !== "active" && (
-          <StripeProvider apiKey={"pk_test_GbzzIDUn5IiwCbX7WFDyeqKl00OsIGjTpi"}>
+          <StripeProvider apiKey={process.env.STRIPE_PK}>
             <ElementsFormWrapper email={subscription.email} />
           </StripeProvider>
         )}

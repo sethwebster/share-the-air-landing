@@ -97,7 +97,7 @@ const TheForm = ({ onSubmit, disabled, error }) => {
     CITY: "",
     STATE: "",
     POSTALCODE: "",
-    DEVICE: "",
+    DEVICE: "iPhone",
   })
 
   const submitted = e => {
@@ -107,6 +107,7 @@ const TheForm = ({ onSubmit, disabled, error }) => {
 
   const handleChange = e => {
     const copy = { ...data }
+    console.log(copy[e.target.name])
     copy[e.target.name] = e.target.value
     setData(copy)
   }

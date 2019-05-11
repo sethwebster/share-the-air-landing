@@ -14,12 +14,12 @@ module.exports = {
   api_url: api.apiUrl,
   mailing_list_api_url: api.mailingUrl,
   // App Info
-  appstore_link: "https://imedadel.me", // Enter App Store URL.
-  playstore_link: "https://imedadel.me", // Enter Google Play Store URL.
+  appstore_link: "https://sharetheair.club", // Enter App Store URL.
+  playstore_link: "https://sharetheair.club", // Enter Google Play Store URL.
   google_analytics_ID: "UA-17288532-13", // Enter Google Analytics ID or ""
   //presskit_download_link: "https://imedadel.me", // Enter a link to downloadable file or (e.g. public Dropbox link to a .zip file).
   video_or_screenshot: "screenshot", // "screenshot" or "video"
-  app_url: "https://agalp.imedadel.me", // Domain of your website without path_prefix.
+  app_url: "https://sharetheair.clubs", // Domain of your website without path_prefix.
   path_prefix: "/", // Prefixes all links. For cases when deployed to example.github.io/automatic-gatsbyjs-app-landing-page/.
   app_name: "Share the Air",
   app_price: "$9.99/month",
@@ -53,7 +53,7 @@ module.exports = {
     {
       title: "Enjoy new Adventures",
       description:
-        "The world of aviation offer so much to explore. Discover the best kept secrets.",
+        "The world of aviation offers so much to explore. Discover the best kept secrets.",
       fontawesome_icon_name: "pizza-slice",
     },
     {

@@ -201,10 +201,11 @@ const subscribe = async (
   await setInProgress(true)
   try {
     console.log("Submitting", formData)
-    await axios.post(configs.mailing_list_api_url, {
+    const response = await axios.post(configs.mailing_list_api_url, {
       ...formData,
       status,
     })
+    console.log(response.data)
     setStatus({ state: "success" })
   } catch (ex) {
     const data = ex.response.data
